@@ -49,7 +49,17 @@ class BuddySiteTest :
         for url in f :
             self.__testTargets.append(url.strip())
         f.close()
-    
+
+    def __genTargetUrl(self, host, target) :
+        hostParams = host.split('.')
+        temp = target.split('//')
+        reqType = temp[0]
+        targetParams = temp[1].split('.')
+        hostParams[-3] = targetParams[-3]
+        url = ''
+        for param in hostParams :
+            url = url + '.' + param
+        return reqType + '//' + url[1:]
     def __genRequestHeader(self,headers,req) :
         for key in headers :
             req.add_header(key, headers[key])
@@ -71,8 +81,9 @@ class BuddySiteTest :
             i = 0
             num = len(self.__testTargets)
             for url in self.__testTargets :
+                url = self.__genTargetUrl(case['HEADER']['HOST'], url)
                 req = urllib2.Request(url + case['uri'])
-                #case['HEADER']['HOST'] = case['HEADER']['HOST'][7:]
+                case['HEADER']['HOST'] = url.split('//')[1]
                 self.__genRequestHeader(case['HEADER'], req)
                 print '    target is ' + url + ' type is ' + case['method']
                 if (case['method'] == 'POST') :
