@@ -74,8 +74,10 @@ class BuddySiteTest :
     def execute(self) :
         caseNum = 1;
         for case in self.__testCases :
-            fileName = str(caseNum) + case['HEADER']['HOST'] + '.html'
+            fileName = str(caseNum) + case['HEADER']['HOST'] + case['uri'].replace('/', '|') + '.html'
             print '''start test ''' + fileName
+            if not(os.path.isdir('result')) :
+                os.makedirs('result')
             resultFile = file('result/' + fileName, 'w')
             resultFile.truncate()
             i = 0
