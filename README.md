@@ -7,7 +7,7 @@ buddySiteTest
 
 
 ###自定义文件运行
-修改run.py，在建立BuddySiteTest类时传入对应文件的地址
+修改run.py，在建立BuddySiteTest对象时传入对应文件的地址
 
     run = BuddySiteTest('yourTestcasesFile', 'yourTargetFile');
     
