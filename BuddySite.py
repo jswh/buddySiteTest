@@ -74,14 +74,18 @@ class BuddySiteTest :
     def execute(self) :
         caseNum = 1;
         for case in self.__testCases :
-            fileName = str(caseNum) + case['HEADER']['HOST'] + case['uri'].replace('/', '|') + '.html'
+            fileName = str(caseNum) + case['HEADER']['HOST'] + case['uri'].replace('/', '|')
             print '''start test ''' + fileName
             if not(os.path.isdir('result')) :
                 os.makedirs('result')
-            resultFile = file('result/' + fileName, 'w')
-            resultFile.truncate()
+            resultFilePath = 'result/' + fileName + '/'
+            if not(os.path.isdir(resultFilePath)) :
+                os.makedirs(resultFilePath)
             i = 0
-            num = len(self.__testTargets)
+            caseNum = len(self.__testTargets)
+            cmpFile = file(resultFilePath + 'compare.html', 'w')
+            cmpFile.truncate()
+            cmpFile.close()
             for url in self.__testTargets :
                 url = self.__genTargetUrl(case['HEADER']['HOST'], url)
                 req = urllib2.Request(url + case['uri'])
@@ -93,16 +97,23 @@ class BuddySiteTest :
                 else :
                     resp = urllib2.urlopen(req)
                 content = resp.read()
-                self.__writeResult(url, content, resultFile, i, num)
+                print content
+                self.__writeResult(url, content, resultFilePath, i, caseNum)
                 i = i + 1
-            resultFile.write(self.__script)
-            resultFile.close()
+            cmpFile = file(resultFilePath + 'compare.html', 'a')
+            cmpFile.write(self.__script)
+            cmpFile.close()
             caseNum = caseNum + 1
         print 'Done!'
         #need to add POST type && add post query string
-    def __writeResult(self, target, content, refile, i, num) :
+    def __writeResult(self, target, content, refilePath, i, num) :
+        cmpFile = file(refilePath + 'compare.html', 'a')
         width = 100/num - 1;
         reContent = '''<div id="''' + str(i) + '''" class='linkResult' style='width:''' + str(width) + '''%'/>''' + cgi.escape(content) + '''</div>''' + '\n'
-        refile.write(reContent)
+        cmpFile.write(reContent)
+        cmpFile.close()
+        resultFile = file(refilePath + target.split('//')[1] + '.html', 'w')
+        resultFile.write(content)
+        resultFile.close()
     def caseInfo(self) :
         return self.__genRequest(self.__testCases[0]['HEADER'])
