@@ -10,7 +10,7 @@ class BuddySiteTest :
     __testCases = []
     __testTargets = []
     __script = '''
-     <script type="text/javascript" language="JavaScript" src="../diff_match_patch.js"></script>
+     <script type="text/javascript" language="JavaScript" src="../../diff_match_patch.js"></script>
 	<script type="text/javascript" language="JavaScript">
 		var dmp = new diff_match_patch();
 		var textOri = document.getElementById('0');
@@ -78,7 +78,7 @@ class BuddySiteTest :
             print '''start test ''' + fileName
             if not(os.path.isdir('result')) :
                 os.makedirs('result')
-            resultFilePath = 'result/' + fileName + '/'
+            resultFilePath = 'result/' + fileName[0:200] + '/'
             if not(os.path.isdir(resultFilePath)) :
                 os.makedirs(resultFilePath)
             i = 0
