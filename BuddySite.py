@@ -92,11 +92,14 @@ class BuddySiteTest :
                 case['HEADER']['HOST'] = url.split('//')[1]
                 self.__genRequestHeader(case['HEADER'], req)
                 print '    target is ' + url + ' type is ' + case['method']
-                if (case['method'] == 'POST') :
-                    resp = urllib2.urlopen(req, case['QUERY'])
-                else :
-                    resp = urllib2.urlopen(req)
-                content = resp.read()
+                try:
+                    if (case['method'] == 'POST') :
+                        resp = urllib2.urlopen(req, case['QUERY'])
+                    else :
+                        resp = urllib2.urlopen(req)
+                    content = resp.read()
+                except:
+                    content = 'url connect failed'
                 print content
                 self.__writeResult(url, content, resultFilePath, i, caseNum)
                 i = i + 1
