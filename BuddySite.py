@@ -6,6 +6,8 @@ import urllib
 import urllib2
 import cgi
 import os.path
+import md5
+import appkey
 class BuddySiteTest :
     __testCases = []
     __testTargets = []
@@ -40,8 +42,14 @@ class BuddySiteTest :
     def __setTestCase(self, logName) :
         f = file(logName, 'r')
         for line in f :
-            case = json.loads(line.split('info:')[1])
+            info = line.split('info:')[1]
+            case = json.loads(info)
+            if(not(isinstance(case['QUERY'], basestring))) :
+                case['QUERY'] = json.dumps(case['QUERY'])
             self.__testCases.append(case)
+            appKey = case['HEADER']['BAPI_APP_KEY']
+            hashKey = case['uri'] + case['QUERY'] + appkey.getSec(appKey)
+            case['HEADER']['BAPI_HASH'] = md5.md5(hashKey).hexdigest()
         f.close()
 
     def __setTargets(self, target) :
@@ -92,14 +100,11 @@ class BuddySiteTest :
                 case['HEADER']['HOST'] = url.split('//')[1]
                 self.__genRequestHeader(case['HEADER'], req)
                 print '    target is ' + url + ' type is ' + case['method']
-                try:
-                    if (case['method'] == 'POST') :
-                        resp = urllib2.urlopen(req, case['QUERY'])
-                    else :
-                        resp = urllib2.urlopen(req)
-                    content = resp.read()
-                except:
-                    content = 'url connect failed'
+                if (case['method'] == 'POST') :
+                    resp = urllib2.urlopen(req, case['QUERY'])
+                else :
+                    resp = urllib2.urlopen(req)
+                content = resp.read()
                 print content
                 self.__writeResult(url, content, resultFilePath, i, caseNum)
                 i = i + 1
