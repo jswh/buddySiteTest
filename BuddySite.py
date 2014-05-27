@@ -9,10 +9,10 @@ import os.path
 import md5
 import appkey
 class BuddySiteTest :
-    __testCases = []
+    __testCases = {}
     __testTargets = []
     __script = '''
-     <script type="text/javascript" language="JavaScript" src="../../diff_match_patch.js"></script>
+     <script type="text/javascript" language="JavaScript" src="../../navi/diff_match_patch.js"></script>
 	<script type="text/javascript" language="JavaScript">
 		var dmp = new diff_match_patch();
 		var textOri = document.getElementById('0');
@@ -42,14 +42,19 @@ class BuddySiteTest :
     def __setTestCase(self, logName) :
         f = file(logName, 'r')
         for line in f :
-            info = line.split('info:')[1]
-            case = json.loads(info)
-            if(not(isinstance(case['QUERY'], basestring))) :
-                case['QUERY'] = json.dumps(case['QUERY'])
-            self.__testCases.append(case)
-            appKey = case['HEADER']['BAPI_APP_KEY']
-            hashKey = case['uri'] + case['QUERY'] + appkey.getSec(appKey)
-            case['HEADER']['BAPI_HASH'] = md5.md5(hashKey).hexdigest()
+            try :
+                name = line.split('info:')[0]
+                info = line.split('info:')[1]
+                case = json.loads(info)
+                if(not(isinstance(case['QUERY'], basestring))) :
+                    case['QUERY'] = json.dumps(case['QUERY'])
+                if(case['method'] == 'POST') :
+                    appKey = case['HEADER']['BAPI_APP_KEY']
+                    hashKey = case['uri'] + case['QUERY'] + appkey.getSec(appKey)
+                    case['HEADER']['BAPI_HASH'] = md5.md5(hashKey).hexdigest()
+                self.__testCases[name] = case
+            except :
+                print "case error"
         f.close()
 
     def __setTargets(self, target) :
@@ -80,9 +85,10 @@ class BuddySiteTest :
             data[KeyVal[0]] = KeyVal[1]
         return data
     def execute(self) :
-        caseNum = 1;
-        for case in self.__testCases :
-            fileName = str(caseNum) + case['HEADER']['HOST'] + case['uri'].replace('/', '|')
+        caseId = 1;
+        for name in self.__testCases :
+            case = self.__testCases[name]
+            fileName = name.replace('/', '|')
             print '''start test ''' + fileName
             if not(os.path.isdir('result')) :
                 os.makedirs('result')
@@ -100,18 +106,21 @@ class BuddySiteTest :
                 case['HEADER']['HOST'] = url.split('//')[1]
                 self.__genRequestHeader(case['HEADER'], req)
                 print '    target is ' + url + ' type is ' + case['method']
-                if (case['method'] == 'POST') :
-                    resp = urllib2.urlopen(req, case['QUERY'])
-                else :
-                    resp = urllib2.urlopen(req)
-                content = resp.read()
+                try :
+                    if (case['method'] == 'POST') :
+                        resp = urllib2.urlopen(req, case['QUERY'])
+                    else :
+                        resp = urllib2.urlopen(req)
+                    content = resp.read()
+                except :
+                    content = "connect failed"
                 print content
                 self.__writeResult(url, content, resultFilePath, i, caseNum)
                 i = i + 1
             cmpFile = file(resultFilePath + 'compare.html', 'a')
             cmpFile.write(self.__script)
             cmpFile.close()
-            caseNum = caseNum + 1
+            caseId = caseId + 1
         print 'Done!'
         #need to add POST type && add post query string
     def __writeResult(self, target, content, refilePath, i, num) :

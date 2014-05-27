@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html style="height:100%">
+<head>
+	<meta charset="utf-8"> 
+	<title>result navi</title>
+	<script type="text/javascript" src="jquery.min.js"></script>
+	<script type="text/javascript" src="tree.js"></script>
+	<style type="text/css">
+	#tree {width:20%;height:100%;display:block;float:left;margin-right:1%;border:1px solid grey;float:left;overflow:auto;}
+	a#folder {cursor: pointer;color: blue;font-size: 0.9em;display: block;margin-bottom: 5px;}
+	a#folder:hover {color:lightblue;}
+	a#file {cursor: pointer;color: grey;font-size: 0.8em;display: block;margin-bottom: 1px;}
+	a#file:hover {color:black;}
+	.folderTree {margin-left: 5px;margin-top: 3px;}
+	.fileTree {margin-left: 15px;display: none;}
+	</style>
+</head>
+<body style="height:100%">
+<div id='tree'>
+	
+</div>
+<iframe id="resultContent" src="" Frameborder=No style="width:75%;height:100%;display:block;float:left;margin-right:1%;border:1px solid grey;"></iframe>
+
+</body>
+<script type="text/javascript">
+	$(document).ready(function() {
+		var tree = getTree();
+		$('#tree').html(tree);
+	});
+
+	var changeView = function (tree) {
+		if(tree.id == 'folder') {
+			var div = tree.nextSibling;
+			$(div).slideToggle('fast');
+		}
+		if(tree.id == 'file') {
+			var contentIframe = document.getElementById('resultContent');
+			var folder = $(tree).parent().prev().text();
+			var file = $(tree).text();
+			$(contentIframe).attr('src', '../result/' + folder + '/' + file);
+		}
+	}
+	
+</script>
+</html>

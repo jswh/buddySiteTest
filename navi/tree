@@ -1,0 +1,6 @@
+<div class="folderTree">
+	<a id='folder' onclick="changeView(this)">tree.html</a>
+		<div class="fileTree"><a id='file' onclick="changeView(this)"> tree.html</a></div>
+</div><div class="folderTree">
+<div class="folderTree">
+</div>
