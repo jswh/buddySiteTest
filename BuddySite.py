@@ -7,6 +7,7 @@ import urllib2
 import cgi
 import os.path
 import md5
+import time
 import appkey
 class BuddySiteTest :
     __testCases = {}
@@ -54,7 +55,8 @@ class BuddySiteTest :
                     case['HEADER']['BAPI_HASH'] = md5.md5(hashKey).hexdigest()
                 self.__testCases[name] = case
             except :
-                print "case error"
+                if(line != '\n') :
+                    print "case error"
         f.close()
 
     def __setTargets(self, target) :
@@ -92,7 +94,7 @@ class BuddySiteTest :
             print '''start test ''' + fileName
             if not(os.path.isdir('result')) :
                 os.makedirs('result')
-            resultFilePath = 'result/' + fileName[0:200] + '/'
+            resultFilePath = 'result/' + str(caseId) + fileName[0:200] + '/'
             if not(os.path.isdir(resultFilePath)) :
                 os.makedirs(resultFilePath)
             i = 0
@@ -113,15 +115,16 @@ class BuddySiteTest :
                         resp = urllib2.urlopen(req)
                     content = resp.read()
                 except :
-                    content = "connect failed"
+                    content = url + " connect failed"
                 print content
                 self.__writeResult(url, content, resultFilePath, i, caseNum)
                 i = i + 1
+                time.sleep(0.1)
             cmpFile = file(resultFilePath + 'compare.html', 'a')
             cmpFile.write(self.__script)
             cmpFile.close()
             caseId = caseId + 1
-        print 'Done!'
+        print 'Test finished!\n'
         #need to add POST type && add post query string
     def __writeResult(self, target, content, refilePath, i, num) :
         cmpFile = file(refilePath + 'compare.html', 'a')

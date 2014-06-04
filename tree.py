@@ -1,4 +1,5 @@
 import os
+import md5
 
 def getFile(rootDir, temp) :
     for lists in os.listdir(rootDir):
@@ -13,11 +14,21 @@ def genTree() :
     for fd in folder :
         files = []
         files = getFile('result/' + fd, files)
-        treeFile.write('<a id=\'folder\' onclick=\'changeView(this)\'>' + fd +'</a>')
-        treeFile.write('<div class=\'fileTree\'>')
+        fileHashs = []
         for f in files :
-            treeFile.write('<a id=\'file\' onclick=\'changeView(this)\'>' + f +'</a>')
-        treeFile.write('</div>')
+            if(not(f == 'compare.html')) :
+                currentFile = file('result/' + fd + '/' + f, 'r')
+                contentHash = md5.md5(currentFile.read()).hexdigest()
+                currentFile.close()
+                fileHashs.append(contentHash)
+                fileHashs.append(contentHash)
+        diffHashs = len(set(fileHashs))
+        if(diffHashs > 1) :
+            treeFile.write('<a id=\'folder\' onclick=\'changeView(this)\'>' + fd +'</a>')
+            treeFile.write('<div class=\'fileTree\'>')
+            for f in files :
+                treeFile.write('<a id=\'file\' onclick=\'changeView(this)\'>' + f +'</a>')
+            treeFile.write('</div>')
     treeFile.write('</div>')
 
     treeFile.write('''";}''')
