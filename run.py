@@ -3,6 +3,9 @@ import tree
 import os
 import shutil
 import time
+import sys
+reload(sys)
+sys.setdefaultencoding('utf8')
 #BuddySiteTest(logName = 'testcases', target = 'target')
 run = BuddySiteTest()
 run.execute()

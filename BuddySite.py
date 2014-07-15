@@ -48,7 +48,7 @@ class BuddySiteTest :
                 info = line.split('info:')[1]
                 case = json.loads(info)
                 if(not(isinstance(case['QUERY'], basestring))) :
-                    case['QUERY'] = json.dumps(case['QUERY'])
+                    case['QUERY'] = json.dumps(case['QUERY'], sort_keys=True)
                 if(case['method'] == 'POST') :
                     appKey = case['HEADER']['BAPI_APP_KEY']
                     hashKey = case['uri'] + case['QUERY'] + appkey.getSec(appKey)
@@ -114,8 +114,8 @@ class BuddySiteTest :
                     else :
                         resp = urllib2.urlopen(req)
                     content = resp.read()
-                except :
-                    content = url + " connect failed"
+                except urllib2.URLError, e:
+                    content = url + " connect faile\n" + e.read()
                 print content
                 self.__writeResult(url, content, resultFilePath, i, caseNum)
                 i = i + 1
