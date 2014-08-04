@@ -1,0 +1,6 @@
+.DS_Store
+*.pyc
+case.html
+history/
+log*
+nohup.out
